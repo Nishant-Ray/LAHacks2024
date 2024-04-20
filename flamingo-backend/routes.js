@@ -57,7 +57,9 @@ userRouter.post("/signup", async (req, res) => {
       const newUserData = {
           username: username,
           email: email,
-          found: []
+          Found: [],
+          Coords: [],
+          score: 0
       };
 
       setDoc(doc(database, "users", user.userId), newUserData);
@@ -220,7 +222,8 @@ userRouter.post('/user-history', async (req, res) => {
             .status(200)
             .json({
                 coords: userData.Coords,
-                found: userData.Found
+                found: userData.Found, 
+                score: userData.score
             });
 
     }
