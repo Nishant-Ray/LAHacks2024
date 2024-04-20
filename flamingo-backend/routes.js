@@ -20,15 +20,6 @@ const getCurrentUserUID = (req, res, next) => {
         next();
     });
 };
-userRouter.get("/test", (req, res) => {
-    res.status(200).json({ message: "Hello world" });
-  }
-);
-
-userRouter.get("/upload-image", (req, res) => {
-  res.status(200).json({ message: "Hello world" });
-}
-);
 
 userRouter.post("/signup", async (req, res) => {
   console.log("Signing up");
@@ -111,9 +102,6 @@ userRouter.post("/login", async (req, res) => {
       });
 });
 
-userRouter.post("/process-image", async (req, res) => {
-    
-});
 userRouter.post("/enterPlant", async (req, res) => {
     console.log("entering new plant");
     try {
