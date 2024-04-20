@@ -127,7 +127,7 @@ userRouter.post("/enterPlant", async (req, res) => {
                     message: "userId is required in request body.",
                 });
         }
-        const userRef = db.collection('users').doc(userId);
+        const userRef = database.collection('users').doc(userId);
         userRef.update({
             Found : firebase.firestore.FieldValue.arrayUnion(plantName)
           })
@@ -154,4 +154,20 @@ userRouter.post("/enterPlant", async (req, res) => {
             .json({ success: false, message: "Error updating database." });
     }
 });
-    export default userRouter;
+
+// Route to get plant information based on common name
+app.post('/plant-info', async (req, res) => {
+  const { commonName } = req.body;
+  try {
+    // Call the external API to get plant information
+    const response = await axios.get(`https://api.plantinfo.com/?commonName=${commonName}`);
+    const plantInfo = response.data;
+
+    res.json(plantInfo);
+  } catch (error) {
+    console.error('Error fetching plant information:', error);
+    res.status(500).json({ error: 'Failed to fetch plant information' });
+  }
+});
+
+export default userRouter;
