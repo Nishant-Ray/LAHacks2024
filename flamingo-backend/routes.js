@@ -7,7 +7,12 @@ import {
     onAuthStateChanged,
 } from "firebase/auth";
 import { collection, doc,  setDoc, getDoc, updateDoc, arrayUnion  } from "firebase/firestore";
+import axios from "axios";
+import 'dotenv/config';
 
+
+const API_KEY = process.env.API_KEY;
+console.log(API_KEY);
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
 
@@ -126,25 +131,16 @@ userRouter.post("/enterPlant", async (req, res) => {
                     message: "No User Found with that userId",
                 });
         }
-        docSnap.get()
-    .then((doc) => {
-    if (doc.exists) {
-      // Check if the array field exists in the document
-      const dataArray = doc.data().Found; // Replace 'field_name' with your actual array field name
-      if (Array.isArray(dataArray)) {
-        // Check if the array contains the desired entry
-        const entryExists = dataArray.includes(plantName); // Replace 'desired_entry' with the entry you want to check
-        if (entryExists) {
-          return res
-            .status(401)
-            .json({
-                success: false,
-                message: "Already exists",
-            });
+        console.log ( docSnap.data() );
+        const userData = docSnap.data();
+        if(userData.Found.includes(plantName)) {
+            return res
+                .status(402)
+                .json({
+                    success: false,
+                    message: "Plant already found, database unchanged",
+                });
         }
-      } 
-    } 
-  })
     await updateDoc(docRef, {
         Found: arrayUnion(plantName)
     });
@@ -168,7 +164,7 @@ userRouter.post('/plant-info', async (req, res) => {
   const { commonName } = req.body;
   try {
     // Call the external API to get plant information
-    const response = await axios.get(`https://perenual.com/api/species-list?key=[Your-API-Key]&q=${commonName}`);
+    const response = await axios.get(`https://perenual.com/api/species-list?key=${API_KEY}&q=${commonName}`);
     const plantInfo = response.data;
 
     res.json(plantInfo);
