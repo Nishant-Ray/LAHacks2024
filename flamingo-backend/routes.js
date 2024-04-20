@@ -111,4 +111,47 @@ userRouter.post("/login", async (req, res) => {
       });
 });
 
-export default userRouter;
+userRouter.post("/process-image", async (req, res) => {
+    
+});
+userRouter.post("/enterPlant", async (req, res) => {
+    console.log("entering new plant");
+    try {
+        const { userId , plantName } = req.body;
+
+        if (userId === undefined) {
+            return res
+                .status(401)
+                .json({
+                    success: false,
+                    message: "userId is required in request body.",
+                });
+        }
+        const userRef = db.collection('users').doc(userId);
+        userRef.update({
+            Found : firebase.firestore.FieldValue.arrayUnion(plantName)
+          })
+
+        if (!userRef.exists()) {
+            return res
+                .status(401)
+                .json({
+                    success: false,
+                    message: "No User Found with that userId",
+                });
+        }
+
+        return res
+            .status(200)
+            .json({
+                success: true,
+            });
+
+    } catch (error) {
+        console.log(error);
+        return res
+            .status(403)
+            .json({ success: false, message: "Error updating database." });
+    }
+});
+    export default userRouter;
