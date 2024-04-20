@@ -128,6 +128,25 @@ userRouter.post("/enterPlant", async (req, res) => {
                 });
         }
         const userRef = database.collection('users').doc(userId);
+        userRef.get()
+  .then((doc) => {
+    if (doc.exists) {
+      // Check if the array field exists in the document
+      const dataArray = doc.data().Found; // Replace 'field_name' with your actual array field name
+      if (Array.isArray(dataArray)) {
+        // Check if the array contains the desired entry
+        const entryExists = dataArray.includes(plantName); // Replace 'desired_entry' with the entry you want to check
+        if (entryExists) {
+          return res
+            .status(401)
+            .json({
+                success: false,
+                message: "Already exists",
+            });
+        }
+      } 
+    } 
+  })
         userRef.update({
             Found : firebase.firestore.FieldValue.arrayUnion(plantName)
           })
@@ -156,7 +175,7 @@ userRouter.post("/enterPlant", async (req, res) => {
 });
 
 // Route to get plant information based on common name
-app.post('/plant-info', async (req, res) => {
+userRouter.post('/plant-info', async (req, res) => {
   const { commonName } = req.body;
   try {
     // Call the external API to get plant information
