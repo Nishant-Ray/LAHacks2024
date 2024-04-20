@@ -160,7 +160,7 @@ app.post('/plant-info', async (req, res) => {
   const { commonName } = req.body;
   try {
     // Call the external API to get plant information
-    const response = await axios.get(`https://perenual.com/api/species-list?key=[]&q=${commonName}`);
+    const response = await axios.get(`https://perenual.com/api/species-list?key=[Your-API-Key]&q=${commonName}`);
     const plantInfo = response.data;
 
     res.json(plantInfo);
