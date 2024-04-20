@@ -1,12 +1,12 @@
 import express from "express";
-import { firebaseApp, database,  } from "../firebase.js";
+import { firebaseApp, database,  } from "./firebase.js";
 import {
     getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     onAuthStateChanged,
 } from "firebase/auth";
-import { collection, doc,  setDoc,  } from "firebase/firestore";
+import { collection, doc,  setDoc, getDoc, updateDoc, arrayUnion  } from "firebase/firestore";
 
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
@@ -115,9 +115,19 @@ userRouter.post("/enterPlant", async (req, res) => {
                     message: "userId is required in request body.",
                 });
         }
-        const userRef = collection('users').doc(userId);
-        userRef.get()
-  .then((doc) => {
+        console.log(userId);
+        const docRef = doc(database, 'users', userId);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+            return res
+                .status(401)
+                .json({
+                    success: false,
+                    message: "No User Found with that userId",
+                });
+        }
+        docSnap.get()
+    .then((doc) => {
     if (doc.exists) {
       // Check if the array field exists in the document
       const dataArray = doc.data().Found; // Replace 'field_name' with your actual array field name
@@ -135,18 +145,9 @@ userRouter.post("/enterPlant", async (req, res) => {
       } 
     } 
   })
-        userRef.update({
-            Found : firebase.firestore.FieldValue.arrayUnion(plantName)
-          })
-
-        if (!userRef.exists()) {
-            return res
-                .status(401)
-                .json({
-                    success: false,
-                    message: "No User Found with that userId",
-                });
-        }
+    await updateDoc(docRef, {
+        Found: arrayUnion(plantName)
+    });
 
         return res
             .status(200)
