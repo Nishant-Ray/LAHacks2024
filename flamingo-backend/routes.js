@@ -1,5 +1,5 @@
 import express from "express";
-import { firebaseApp, database,  } from "../firebase.js";
+import { collection, firebaseApp, database,  } from "../firebase.js";
 import {
     getAuth,
     signInWithEmailAndPassword,
@@ -15,7 +15,7 @@ const auth = getAuth(firebaseApp);
 const getCurrentUserUID = (req, res, next) => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            req.currentUserUID = user.uid;
+            req.currentUserUID = user.userId;
         }
         next();
     });
@@ -55,14 +55,14 @@ userRouter.post("/signup", async (req, res) => {
           found: []
       };
 
-      setDoc(doc(database, "users", user.uid), newUserData);
+      setDoc(doc(database, "users", user.userId), newUserData);
 
       return res
           .status(200)
           .json({
               success: true,
               message: "Signed up successfully!",
-              uid: user.uid,
+              userId: user.userId,
           });
   } catch (error) {
       console.log(error);
@@ -92,7 +92,7 @@ userRouter.post("/login", async (req, res) => {
               .json({
                   success: true,
                   message: "Logged in successfully!",
-                  uid: user.uid,
+                  userId: user.userId,
               });
       })
       .catch((error) => {
@@ -176,5 +176,6 @@ userRouter.post('/plant-info', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch plant information' });
   }
 });
+
 
 export default userRouter;
