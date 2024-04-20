@@ -1,12 +1,12 @@
 import express from "express";
-import { collection, firebaseApp, database,  } from "../firebase.js";
+import { firebaseApp, database,  } from "../firebase.js";
 import {
     getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     onAuthStateChanged,
 } from "firebase/auth";
-import { doc,  setDoc,  } from "firebase/firestore";
+import { collection, doc,  setDoc,  } from "firebase/firestore";
 
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
