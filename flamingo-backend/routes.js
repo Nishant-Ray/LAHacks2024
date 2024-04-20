@@ -20,8 +20,6 @@ const getCurrentUserUID = (req, res, next) => {
         next();
     });
 };
-const router = express.Router();
-
 userRouter.get("/test", (req, res) => {
     res.status(200).json({ message: "Hello world" });
   }
