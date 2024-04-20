@@ -115,7 +115,7 @@ userRouter.post("/enterPlant", async (req, res) => {
                     message: "userId is required in request body.",
                 });
         }
-        const userRef = database.collection('users').doc(userId);
+        const userRef = collection('users').doc(userId);
         userRef.get()
   .then((doc) => {
     if (doc.exists) {
