@@ -6,7 +6,7 @@ import {
     createUserWithEmailAndPassword,
     onAuthStateChanged,
 } from "firebase/auth";
-import { collection, doc,  setDoc, getDoc, updateDoc, arrayUnion  } from "firebase/firestore";
+import { collection, doc,  setDoc, getDoc, updateDoc, arrayUnion, GeoPoint  } from "firebase/firestore";
 import axios from "axios";
 import 'dotenv/config';
 
@@ -110,7 +110,7 @@ userRouter.post("/login", async (req, res) => {
 userRouter.post("/enterPlant", async (req, res) => {
     console.log("entering new plant");
     try {
-        const { userId , plantName } = req.body;
+        const { userId , plantName, coords } = req.body;
 
         if (userId === undefined) {
             return res
@@ -142,7 +142,9 @@ userRouter.post("/enterPlant", async (req, res) => {
                 });
         }
     await updateDoc(docRef, {
-        Found: arrayUnion(plantName)
+        Found: arrayUnion(plantName),
+        Coords: arrayUnion( new GeoPoint(coords[0], coords[1]))
+
     });
 
         return res
@@ -172,6 +174,49 @@ userRouter.post('/plant-info', async (req, res) => {
     console.error('Error fetching plant information:', error);
     res.status(500).json({ error: 'Failed to fetch plant information' });
   }
+});
+
+userRouter.post('/user-history', async (req, res) => {
+    const { userId } = req.body;
+    try {
+        if (userId == undefined) {
+            return res
+                .status(401)
+                .json({
+                    success: false,
+                    message: "userId is required in request body.",
+                });
+        }
+        console.log(userId);
+        const docRef = doc(database, 'users', userId);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+            return res
+                .status(401)
+                .json({
+                    success: false,
+                    message: "No User Found with that userId",
+                });
+        }
+        const userData = docSnap.data();
+
+        return res
+            .status(200)
+            .json({
+                coords: userData.Coords,
+                found: userData.Found
+            });
+
+    }
+    catch(error) {
+        console.log(error);
+        return res
+        .status(409)
+        .json({
+            success: false,
+            message: "Error retrieving user history",
+        });
+    }
 });
 
 
