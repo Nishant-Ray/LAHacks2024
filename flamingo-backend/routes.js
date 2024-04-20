@@ -143,8 +143,8 @@ userRouter.post("/enterPlant", async (req, res) => {
         }
     await updateDoc(docRef, {
         Found: arrayUnion(plantName),
-        Coords: arrayUnion( new GeoPoint(coords[0], coords[1]))
-
+        Coords: arrayUnion( new GeoPoint(coords[0], coords[1])),
+        score: increment(10)
     });
 
         return res
