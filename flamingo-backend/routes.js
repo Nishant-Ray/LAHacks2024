@@ -167,8 +167,24 @@ userRouter.post('/plant-info', async (req, res) => {
   try {
     // Call the external API to get plant information
     const response = await axios.get(`https://perenual.com/api/species-list?key=${API_KEY}&q=${commonName}`);
-    const plantInfo = response.data;
-
+    const plantId = response.data['id'];
+    const response2 = await axios.get(`https://perenual.com/api/species/details/${plantId}?key=${API_KEY}`);
+    const plantInfo = {}
+    plantInfo[scientific_name] = response2.data['scientific_name'];
+    plantInfo[other_name] = response2.data['other_name'];
+    plantInfo[type] = response2.data['type'];
+    plantInfo[hasFlowers] = response2.data['flowers'];
+    if(plantInfo[hasFlowers] == 'true') {
+        plantInfo[floweringSeason] = response2.data['flower_season'];
+        plantInfo[flowerColor] = response2.data['color'];
+    }
+    plantInfo[hasFruit] = response2.data['fruits'];
+    if(plantInfo[hasFruit] == 'true') {
+        plantInfo[isEdible] = response2.data['edible_fruit'];
+        plantInfo[fruitColor] = response2.data['fruit_color'];
+    }
+    plantInfo[isMedicinal] = response2.data['medicinal'];
+    plantInfo[isPoisonous] = response2.data['poisonous_to_humans'] || response2.data['poisonous_to_pets'];
     res.json(plantInfo);
   } catch (error) {
     console.error('Error fetching plant information:', error);
