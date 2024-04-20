@@ -113,4 +113,4 @@ userRouter.post("/login", async (req, res) => {
       });
 });
 
-export default router;
+export default userRouter;
