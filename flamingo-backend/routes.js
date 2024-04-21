@@ -1,13 +1,19 @@
 import express from "express";
-import { firebaseApp, database,  } from "../firebase.js";
+import { firebaseApp, database,  } from "./firebase.js";
 import {
     getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     onAuthStateChanged,
 } from "firebase/auth";
-import { doc,  setDoc,  } from "firebase/firestore";
+import { collection, doc,  setDoc, getDoc, updateDoc, arrayUnion, GeoPoint  } from "firebase/firestore";
+import axios from "axios";
+import 'dotenv/config';
 
+
+const API_KEY = process.env.API_KEY;
+console.log(API_KEY);
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
 
@@ -15,22 +21,11 @@ const auth = getAuth(firebaseApp);
 const getCurrentUserUID = (req, res, next) => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            req.currentUserUID = user.uid;
+            req.currentUserUID = user.userId;
         }
         next();
     });
 };
-const router = express.Router();
-
-userRouter.get("/test", (req, res) => {
-    res.status(200).json({ message: "Hello world" });
-  }
-);
-
-userRouter.get("/upload-image", (req, res) => {
-  res.status(200).json({ message: "Hello world" });
-}
-);
 
 userRouter.post("/signup", async (req, res) => {
   console.log("Signing up");
@@ -63,17 +58,19 @@ userRouter.post("/signup", async (req, res) => {
       const newUserData = {
           username: username,
           email: email,
-          found: []
+          Found: [],
+          Coords: [],
+          score: 0
       };
 
-      setDoc(doc(database, "users", user.uid), newUserData);
+      setDoc(doc(database, "users", user.userId), newUserData);
 
       return res
           .status(200)
           .json({
               success: true,
               message: "Signed up successfully!",
-              uid: user.uid,
+              userId: user.userId,
           });
   } catch (error) {
       console.log(error);
@@ -103,7 +100,7 @@ userRouter.post("/login", async (req, res) => {
               .json({
                   success: true,
                   message: "Logged in successfully!",
-                  uid: user.uid,
+                  userId: user.userId,
               });
       })
       .catch((error) => {
@@ -112,5 +109,134 @@ userRouter.post("/login", async (req, res) => {
               .json({ success: false, message: error.message });
       });
 });
+
+userRouter.post("/enterPlant", async (req, res) => {
+    console.log("entering new plant");
+    try {
+        const { userId , plantName, coords } = req.body;
+
+        if (userId === undefined) {
+            return res
+                .status(401)
+                .json({
+                    success: false,
+                    message: "userId is required in request body.",
+                });
+        }
+        console.log(userId);
+        const docRef = doc(database, 'users', userId);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+            return res
+                .status(401)
+                .json({
+                    success: false,
+                    message: "No User Found with that userId",
+                });
+        }
+        console.log ( docSnap.data() );
+        const userData = docSnap.data();
+        if(userData.Found.includes(plantName)) {
+            return res
+                .status(402)
+                .json({
+                    success: false,
+                    message: "Plant already found, database unchanged",
+                });
+        }
+    await updateDoc(docRef, {
+        Found: arrayUnion(plantName),
+        Coords: arrayUnion( new GeoPoint(coords[0], coords[1])),
+        score: increment(10)
+    });
+
+        return res
+            .status(200)
+            .json({
+                success: true,
+            });
+
+    } catch (error) {
+        console.log(error);
+        return res
+            .status(403)
+            .json({ success: false, message: "Error updating database." });
+    }
+});
+
+// Route to get plant information based on common name
+userRouter.post('/plant-info', async (req, res) => {
+  const { commonName } = req.body;
+  try {
+    // Call the external API to get plant information
+    const response = await axios.get(`https://perenual.com/api/species-list?key=${API_KEY}&q=${commonName}`);
+    res.json({
+        "Scientific Name": response.data['data'][0]['scientific_name'],
+        "Other Name": response.data['data'][0]['other_name'] }
+    );
+  } catch (error) {
+    console.error('Error fetching plant information:', error);
+    res.status(500).json({ error: 'Failed to fetch plant information' });
+  }
+});
+
+userRouter.post('/user-history', async (req, res) => {
+    const { userId } = req.body;
+    try {
+        if (userId == undefined) {
+            return res
+                .status(401)
+                .json({
+                    success: false,
+                    message: "userId is required in request body.",
+                });
+        }
+        console.log(userId);
+        const docRef = doc(database, 'users', userId);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+            return res
+                .status(401)
+                .json({
+                    success: false,
+                    message: "No User Found with that userId",
+                });
+        }
+        const userData = docSnap.data();
+
+        return res
+            .status(200)
+            .json({
+                coords: userData.Coords,
+                found: userData.Found, 
+                score: userData.score
+            });
+
+    }
+    catch(error) {
+        console.log(error);
+        return res
+        .status(409)
+        .json({
+            success: false,
+            message: "Error retrieving user history",
+        });
+    }
+});
+
+userRouter.post('/getPlantPic', async (req, res) => {
+    const { commonName } = req.body;
+    try {
+      // Call the external API to get plant information
+      const response = await axios.get(`https://perenual.com/api/species-list?key=${API_KEY}&q=${commonName}`);
+      //const plantPic = response.data["default_image"]["original_url"];
+      //console.log(response.data.data[0]['default_image']['original_url']);
+      const plantPic = response.data.data[0]['default_image']['original_url'];
+      res.json(plantPic);
+    } catch (error) {
+      console.error('Error fetching plant picture:', error);
+      res.status(500).json({ error: 'Failed to fetch plant picture' });
+    }
+  });
 
 export default userRouter;
