@@ -13,6 +13,7 @@ import 'dotenv/config';
 
 const API_KEY = process.env.API_KEY;
 console.log(API_KEY);
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
 
@@ -169,25 +170,10 @@ userRouter.post('/plant-info', async (req, res) => {
   try {
     // Call the external API to get plant information
     const response = await axios.get(`https://perenual.com/api/species-list?key=${API_KEY}&q=${commonName}`);
-    const plantId = response.data['id'];
-    const response2 = await axios.get(`https://perenual.com/api/species/details/${plantId}?key=${API_KEY}`);
-    const plantInfo = {}
-    plantInfo[scientific_name] = response2.data['scientific_name'];
-    plantInfo[other_name] = response2.data['other_name'];
-    plantInfo[type] = response2.data['type'];
-    plantInfo[hasFlowers] = response2.data['flowers'];
-    if(plantInfo[hasFlowers] == 'true') {
-        plantInfo[floweringSeason] = response2.data['flower_season'];
-        plantInfo[flowerColor] = response2.data['color'];
-    }
-    plantInfo[hasFruit] = response2.data['fruits'];
-    if(plantInfo[hasFruit] == 'true') {
-        plantInfo[isEdible] = response2.data['edible_fruit'];
-        plantInfo[fruitColor] = response2.data['fruit_color'];
-    }
-    plantInfo[isMedicinal] = response2.data['medicinal'];
-    plantInfo[isPoisonous] = response2.data['poisonous_to_humans'] || response2.data['poisonous_to_pets'];
-    res.json(plantInfo);
+    res.json({
+        "Scientific Name": response.data['data'][0]['scientific_name'],
+        "Other Name": response.data['data'][0]['other_name'] }
+    );
   } catch (error) {
     console.error('Error fetching plant information:', error);
     res.status(500).json({ error: 'Failed to fetch plant information' });
@@ -238,5 +224,19 @@ userRouter.post('/user-history', async (req, res) => {
     }
 });
 
+userRouter.post('/getPlantPic', async (req, res) => {
+    const { commonName } = req.body;
+    try {
+      // Call the external API to get plant information
+      const response = await axios.get(`https://perenual.com/api/species-list?key=${API_KEY}&q=${commonName}`);
+      //const plantPic = response.data["default_image"]["original_url"];
+      //console.log(response.data.data[0]['default_image']['original_url']);
+      const plantPic = response.data.data[0]['default_image']['original_url'];
+      res.json(plantPic);
+    } catch (error) {
+      console.error('Error fetching plant picture:', error);
+      res.status(500).json({ error: 'Failed to fetch plant picture' });
+    }
+  });
 
 export default userRouter;
