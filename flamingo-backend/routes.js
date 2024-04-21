@@ -166,12 +166,12 @@ userRouter.post("/enterPlant", async (req, res) => {
 
 // Route to get plant information based on common name
 userRouter.post('/plant-info', async (req, res) => {
-  const { commonName } = req.body;
+  const { scientificName } = req.body;
   try {
     // Call the external API to get plant information
-    const response = await axios.get(`https://perenual.com/api/species-list?key=${API_KEY}&q=${commonName}`);
+    const response = await axios.get(`https://perenual.com/api/species-list?key=${API_KEY}&q=${scientificName}`);
     res.json({
-        "Scientific Name": response.data['data'][0]['scientific_name'],
+        "Scientific Name": response.data['data']['common_name'],
         "Other Name": response.data['data'][0]['other_name'] }
     );
   } catch (error) {
