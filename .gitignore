@@ -1,2 +1,4 @@
 **/node_modules
 flamingo-backend/firebase.js
+flamingo-backend/.env
+flamingo-frontend/.env

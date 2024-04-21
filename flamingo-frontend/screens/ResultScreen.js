@@ -8,6 +8,7 @@ import {
     StyleSheet,
     Pressable,
     TouchableOpacity,
+    LogBox
 } from "react-native";
 import { useUser } from "./../UserContext";
 import {
@@ -22,6 +23,7 @@ import {
     Lexend_400Regular,
 } from "@expo-google-fonts/dev";
 import { useRoute } from '@react-navigation/native';
+import * as Location from "expo-location";
 
 const ResultScreen = ({ navigation }) => {
     let [fontsLoaded, fontError] = useFonts({
@@ -35,9 +37,13 @@ const ResultScreen = ({ navigation }) => {
         Lexend_400Regular,
     });
 
+    LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+    LogBox.ignoreAllLogs();
+
     const route = useRoute();
     const { plant } = route.params;
     const { uid, setUid } = useUser();
+    const [ currentLocation, setCurrentLocation ] = useState(null);
     const [ commonName, setCommonName ] = useState("");
     const [ imageLink, setImageLink ] = useState("");
     const [ alreadyFound, setAlreadyFound ] = useState(false);
@@ -47,12 +53,33 @@ const ResultScreen = ({ navigation }) => {
     };
 
     useEffect(() => {
-        updateDatabase();
+        getLocation();
     }, []);
+
+    useEffect(() => {
+        if (currentLocation) {
+            updateDatabase();
+        }
+    }, [currentLocation]);
     
+    const getLocation = async () => {
+        console.log("SUPPPPP");
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+            alert("Permission to access location was denied");
+            return;
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        console.log("TEST: " + location.coords);
+        setCurrentLocation(location.coords);
+    };
+
     const updateDatabase = async () => {
-        console.log("4 " + uid);
+        
+
         try {
+            console.log("Updating database")
             const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/enterPlant`, {
                 method: "POST",
                 headers: {
@@ -61,7 +88,7 @@ const ResultScreen = ({ navigation }) => {
                 body: JSON.stringify({
                     userId: uid,
                     plantName: plant,
-                    coords: [0, 0]
+                    coords: [currentLocation.latitude + (Math.random() - 0.5) * 0.0002, currentLocation.longitude + (Math.random() - 0.5) * 0.0002]
                 }),
             });
             const data = await response.json();
@@ -193,6 +220,7 @@ const styles = StyleSheet.create({
         fontFamily: "Urbanist_700Bold",
         fontSize: 50,
         textAlign: "center",
+        marginBottom: 20
     },
     scientificNameText: {
         color: "#111210",
@@ -209,7 +237,7 @@ const styles = StyleSheet.create({
         marginBottom: 40,
         borderRadius: 30,
         alignSelf: "center",
-        marginTop: 150
+        marginTop: 100
     },
     homeButtonText: {
         fontSize: 20,

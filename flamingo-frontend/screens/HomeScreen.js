@@ -6,7 +6,8 @@ import {
     Button,
     Image,
     StyleSheet,
-    Pressable
+    Pressable,
+    LogBox
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { useUser } from "./../UserContext";
@@ -34,6 +35,9 @@ const HomeScreen = ({ navigation }) => {
         Lexend_400Regular
     });
 
+    LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+    LogBox.ignoreAllLogs();
+
     const { uid, setUid } = useUser();
 
     const logout = () => {
@@ -43,6 +47,14 @@ const HomeScreen = ({ navigation }) => {
 
     const scan = () => {
         navigation.navigate("Scan");
+    };
+
+    const log = () => {
+        navigation.navigate("Log");
+    };
+
+    const map = () => {
+        navigation.navigate("Map");
     };
 
     return (
@@ -71,7 +83,7 @@ const HomeScreen = ({ navigation }) => {
                         />
                         <Text style={styles.actionText}>Scan Plant</Text>
                     </Pressable>
-                    <Pressable style={[styles.actionButton, { backgroundColor: "#E49066"}]}>
+                    <Pressable style={[styles.actionButton, { backgroundColor: "#E49066"}]} onPress={log}>
                         <Icon
                             name="sprout"
                             type="material-community"
@@ -83,7 +95,7 @@ const HomeScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.actionRow}>
-                    <Pressable style={[styles.actionButton, { width: 270, backgroundColor: "#E099B3" }]}>
+                    <Pressable style={[styles.actionButton, { width: 270, backgroundColor: "#E099B3" }]} onPress={map}>
                         <Icon
                             name="map-marker-radius"
                             type="material-community"

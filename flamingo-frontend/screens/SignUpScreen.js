@@ -7,6 +7,7 @@ import {
     Image,
     StyleSheet,
     Pressable,
+    LogBox
 } from "react-native";
 import { useUser } from "./../UserContext";
 import {
@@ -32,12 +33,15 @@ const SignUpScreen = ({ navigation }) => {
         Lexend_500Medium,
         Lexend_400Regular
     });
+    
+    LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+    LogBox.ignoreAllLogs();
 
     const [newEmail, setNewEmail] = useState("");
     const [newUsername, setNewUsername] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [ uid, setUid ] = useUser();
+    const { uid, setUid } = useUser();
 
     if (!fontsLoaded || fontError) {
         console.log("Error loading fonts");

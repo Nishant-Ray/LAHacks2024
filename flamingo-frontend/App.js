@@ -5,7 +5,10 @@ import HomeScreen from "./screens/HomeScreen.js";
 import LoginScreen from "./screens/LoginScreen.js";
 import SignUpScreen from "./screens/SignUpScreen.js";
 import ScanScreen from "./screens/ScanScreen.js";
-import ResultScreen from "./screens/ResultScreen.js"
+import ResultScreen from "./screens/ResultScreen.js";
+import LogScreen from "./screens/LogScreen.js";
+import DetailsScreen from "./screens/DetailsScreen.js";
+import MapScreen from "./screens/MapScreen.js";
 import { UserProvider } from "./UserContext.js";
 
 const Stack = createNativeStackNavigator();
@@ -23,6 +26,10 @@ const Flamingo = () => {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Scan" component={ScanScreen} />
           <Stack.Screen name="Result" component={ResultScreen} />
+          <Stack.Screen name="Log" component={LogScreen} />
+          <Stack.Screen name="Details" component={DetailsScreen} />
+          <Stack.Screen name="Map" component={MapScreen} />
+
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

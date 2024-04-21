@@ -5,6 +5,7 @@ import {
     TextInput,
     StyleSheet,
     Pressable,
+    LogBox
 } from "react-native";
 import { useUser } from "./../UserContext";
 import {
@@ -30,6 +31,9 @@ const LoginScreen = ({ navigation }) => {
         Lexend_500Medium,
         Lexend_400Regular
     });
+
+    LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+    LogBox.ignoreAllLogs();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");

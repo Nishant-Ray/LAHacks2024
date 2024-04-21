@@ -9,6 +9,7 @@ import {
     StyleSheet,
     Pressable,
     TouchableOpacity,
+    LogBox
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "./../UserContext";
@@ -35,6 +36,9 @@ const ScanScreen = ({ navigation }) => {
         Lexend_500Medium,
         Lexend_400Regular,
     });
+
+    LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+    LogBox.ignoreAllLogs();
 
     const { uid, setUid } = useUser();
     const [hasPermission, setHasPermission] = useState(null);
