@@ -72,6 +72,7 @@ const ScanScreen = ({ navigation }) => {
     };
 
     const acceptPhoto = async () => {
+        
         try {
             const reesponse = await fetch(capturedPhoto.uri);
 

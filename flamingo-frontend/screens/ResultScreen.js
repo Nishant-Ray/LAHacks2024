@@ -38,8 +38,9 @@ const ResultScreen = ({ navigation }) => {
     const route = useRoute();
     const { plant } = route.params;
     const { uid, setUid } = useUser();
-    const { commonName, setCommonName } = useState("");
-    const { alreadyFound, setAlreadyFound } = useState(false);
+    const [ commonName, setCommonName ] = useState("");
+    const [ imageLink, setImageLink ] = useState("");
+    const [ alreadyFound, setAlreadyFound ] = useState(false);
 
     const home = () => {
         navigation.navigate("Home");
@@ -47,21 +48,26 @@ const ResultScreen = ({ navigation }) => {
 
     useEffect(() => {
         updateDatabase();
-      }, []);
+    }, []);
     
     const updateDatabase = async () => {
+        console.log("4 " + uid);
         try {
             const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/enterPlant`, {
                 method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                     userId: uid,
                     plantName: plant,
+                    coords: [0, 0]
                 }),
             });
             const data = await response.json();
             console.log('Fetched data:', data);
 
-            if (response.status === 403) {
+            if (response.status === 402) {
                 setAlreadyFound(true);
             } else if (response.ok) {
                 setAlreadyFound(false);
@@ -72,11 +78,15 @@ const ResultScreen = ({ navigation }) => {
         }
 
         try {
-            let firstWord = plant;
+            let firstWord = plant.split(' ')[0];
+            console.log("FIRST WORD: " + firstWord);
+
             const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/plant-info`, {
                 method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
-                    userId: uid,
                     commonName: firstWord,
                 }),
             });
@@ -85,8 +95,32 @@ const ResultScreen = ({ navigation }) => {
 
             if (response.ok) {
                 setCommonName(data["Common Name"]);
-            } else if (response.ok) {
+            } else {
                 setCommonName("");
+            }
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/getPlantPic`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userId: uid,
+                    commonName: plant,
+                }),
+            });
+            const data = await response.json();
+            console.log('Fetched data:', data);
+
+            if (response.ok) {
+                setImageLink(data);
+            } else {
+                setImageLink("");
             }
 
         } catch (error) {
@@ -98,13 +132,14 @@ const ResultScreen = ({ navigation }) => {
         return (
             <View style={styles.container}>
 
-                <View style={styles.plantImage}>
-
-                </View>
+                <Image
+                    source={{ uri: imageLink }}
+                    style={styles.plantImage}
+                />
                 
                 <Text style={styles.discoveryText}>You've Already Discovered This Plant!</Text>
                 <Text style={styles.plantText}>{commonName}</Text>
-                <Text style={styles.scientificNameText}>{plant}</Text>
+                <Text style={styles.scientificNameText}>Scientific Name: <Text style={{ color: "#27b83c", fontSize: 24 }}>{plant}</Text></Text>
                 
                 <Pressable style={styles.homeButton} onPress={home}>
                     <Text style={styles.homeButtonText}>Home</Text>
@@ -115,13 +150,14 @@ const ResultScreen = ({ navigation }) => {
         return (
             <View style={styles.container}>
 
-                <View style={styles.plantImage}>
-
-                </View>
+                <Image
+                    source={{ uri: imageLink }}
+                    style={styles.plantImage}
+                />
                 
                 <Text style={styles.discoveryText}>You Discovered a New Plant!</Text>
                 <Text style={styles.plantText}>{commonName}</Text>
-                <Text style={styles.scientificNameText}>{plant}</Text>
+                <Text style={styles.scientificNameText}>Scientific Name: <Text style={{ color: "#27b83c", fontSize: 24 }}>{plant}</Text></Text>
                 
                 <Pressable style={styles.homeButton} onPress={home}>
                     <Text style={styles.homeButtonText}>Home</Text>
@@ -142,14 +178,13 @@ const styles = StyleSheet.create({
     plantImage: {
         width: 250,
         height: 250,
-        backgroundColor: "red",
         borderRadius: 10
     },
     discoveryText: {
         marginTop: 50,
         color: "#111210",
         fontFamily: "Lexend_500Medium",
-        fontSize: 22,
+        fontSize: 24,
         marginBottom: 20,
         textAlign: "center",
     },
@@ -160,9 +195,10 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     scientificNameText: {
-        color: "#27b83c",
+        color: "#111210",
         fontFamily: "Urbanist_700Bold",
-        fontSize: 42
+        fontSize: 22,
+        textAlign: "center",
     },
     homeButton: {
         backgroundColor: "#7DEDA1",
@@ -173,7 +209,7 @@ const styles = StyleSheet.create({
         marginBottom: 40,
         borderRadius: 30,
         alignSelf: "center",
-        marginTop: 180
+        marginTop: 150
     },
     homeButtonText: {
         fontSize: 20,

@@ -37,7 +37,7 @@ const SignUpScreen = ({ navigation }) => {
     const [newUsername, setNewUsername] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const { uid, setUid } = useUser();
+    const [ uid, setUid ] = useUser();
 
     if (!fontsLoaded || fontError) {
         console.log("Error loading fonts");
@@ -54,7 +54,7 @@ const SignUpScreen = ({ navigation }) => {
         // Actual authentication logic using the backend server
         try {
             const response = await fetch(
-                `${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/signup`,
+                `${process.env.EXPO_PUBLIC_BACKEND_SERVER}/signup`,
                 {
                     method: "POST",
                     headers: {
@@ -74,7 +74,7 @@ const SignUpScreen = ({ navigation }) => {
                 setNewEmail("");
                 setNewUsername("");
                 setNewPassword("");
-                setUid(data.uid);
+                setUid(data.userId);
                 navigation.navigate("Home");
             } else {
                 alert("An account with that email already exists!");

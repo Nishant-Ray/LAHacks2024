@@ -42,7 +42,6 @@ const LoginScreen = ({ navigation }) => {
     }
 
     const handleLogin = async () => {
-        navigation.navigate("Home"); // DELETE
 
         if (email == "" || password == "") {
             alert("Please enter an email and password!");
@@ -70,7 +69,7 @@ const LoginScreen = ({ navigation }) => {
             if (data.success) {
                 setEmail("");
                 setPassword("");
-                setUid(data.uid);
+                setUid(data.userId);
                 navigation.navigate("Home");
             } else {
                 alert("Invalid username or password! Please try again.");
