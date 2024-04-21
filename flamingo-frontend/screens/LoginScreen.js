@@ -9,26 +9,41 @@ import {
 import { useUser } from "./../UserContext";
 import {
     useFonts,
-    JosefinSans_700Bold,
-    InterTight_600SemiBold,
-    InterTight_500Medium,
-    InterTight_700Bold,
+    Urbanist_700Bold,
+    Urbanist_600SemiBold,
+    Urbanist_500Medium,
+    Urbanist_400Regular,
+    Lexend_700Bold,
+    Lexend_600SemiBold,
+    Lexend_500Medium,
+    Lexend_400Regular
 } from "@expo-google-fonts/dev";
 
 const LoginScreen = ({ navigation }) => {
     let [fontsLoaded, fontError] = useFonts({
-        JosefinSans_700Bold,
-        InterTight_600SemiBold,
-        InterTight_500Medium,
-        InterTight_700Bold,
+        Urbanist_700Bold,
+        Urbanist_600SemiBold,
+        Urbanist_500Medium,
+        Urbanist_400Regular,
+        Lexend_700Bold,
+        Lexend_600SemiBold,
+        Lexend_500Medium,
+        Lexend_400Regular
     });
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const { uid, setUid } = useUser();
+    
+    if (!fontsLoaded || fontError) {
+        console.log("Error loading fonts");
+        return null;
+    }
 
     const handleLogin = async () => {
+        navigation.navigate("Home"); // DELETE
+
         if (email == "" || password == "") {
             alert("Please enter an email and password!");
             return;
@@ -78,7 +93,7 @@ const LoginScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.titleText}>Flamingo</Text>
+                <Text style={styles.titleText}>Vera</Text>
             </View>
 
             <View style={styles.formContainer}>
@@ -135,29 +150,28 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         alignItems: "center",
-        backgroundColor: "#ffffff",
     },
     header: {
-        backgroundColor: "white",
+        backgroundColor: "#111210",
         width: "100%",
         height: 200,
         alignItems: "flex-end",
     },
     titleText: {
-        fontFamily: "JosefinSans_700Bold",
-        fontSize: 56,
+        fontFamily: "Urbanist_700Bold",
+        fontSize: 72,
         marginTop: 100,
-        color: "#fa6161",
+        color: "#7DEDA1",
         alignSelf: "center",
     },
     formContainer: {
-        backgroundColor: "white",
+        backgroundColor: "#111210",
         alignItems: "center",
         width: "100%",
         height: "100%",
     },
     formDiv: {
-        backgroundColor: "white",
+        backgroundColor: "#111210",
         paddingTop: 50,
         width: "75%",
         alignItems: "left",
@@ -165,19 +179,20 @@ const styles = StyleSheet.create({
     welcomeText: {
         fontSize: 28,
         marginBottom: 20,
-        color: "#333330", // Updated text color
+        color: "white", // Updated text color,
+        fontFamily: "Lexend_600SemiBold"
     },
     input: {
         height: 60,
         width: "100%",
-        backgroundColor: "white",
         color: "#333333",
         paddingHorizontal: 15,
         fontSize: 20,
-        backgroundColor: "#ffb8b8",
+        backgroundColor: "white",
         borderRadius: 7,
         overflow: "hidden",
         alignSelf: "center",
+        fontFamily: "Lexend_400Regular"
     },
     passwordContainer: {
         flexDirection: "row",
@@ -185,7 +200,7 @@ const styles = StyleSheet.create({
         width: "100%",
         marginTop: 20,
         marginBottom: 20,
-        backgroundColor: "#ffb8b8",
+        backgroundColor: "white",
         borderRadius: 7,
         alignSelf: "center",
     },
@@ -197,42 +212,44 @@ const styles = StyleSheet.create({
         fontSize: 20,
         overflow: "hidden",
         alignSelf: "center",
+        fontFamily: "Lexend_400Regular"
     },
     showPasswordButton: {
         paddingRight: 10
     },
     showPasswordText: {
-        color: "#1f8df2",
+        color: "#3ABA81",
         fontSize: 18,
     },
     loginButton: {
-        backgroundColor: "#fa6161",
+        backgroundColor: "#7DEDA1",
         paddingVertical: 15,
         paddingHorizontal: 15,
         width: "100%",
         marginTop: 25,
         marginBottom: 40,
         borderRadius: 5,
-        backgroundColor: "#fa6161",
         alignSelf: "center",
     },
     loginButtonText: {
         fontSize: 20,
-        color: "white",
+        color: "#111210",
         textAlign: "center",
         fontWeight: "bold",
+        fontFamily: "Lexend_600SemiBold"
     },
     signUpInfo: {
-        color: "#333333",
+        color: "white",
         fontSize: 18,
         alignSelf: "center",
+        fontFamily: "Lexend_400Regular"
     },
     signUpButton: {
-        backgroundColor: "#ffffff",
+        backgroundColor: "#111210",
         alignSelf: "center",
     },
     signUpButtonText: {
-        color: "#fa6161",
+        color: "#7DEDA1",
         textAlign: "center",
         fontSize: 18,
         textDecorationLine: "underline",
